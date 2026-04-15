@@ -1,4 +1,3 @@
-// ── Load SheetJS from CDN, then init app ──────────────────────────────────
 var XLSX_LOADED = false;
 
 function loadSheetJS(callback) {
@@ -6,7 +5,6 @@ function loadSheetJS(callback) {
   s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
   s.onload  = function() { XLSX_LOADED = true; callback(); };
   s.onerror = function() {
-    // fallback CDN
     var s2 = document.createElement('script');
     s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
     s2.onload  = function() { XLSX_LOADED = true; callback(); };
@@ -21,10 +19,9 @@ function loadSheetJS(callback) {
 
 loadSheetJS(initApp);
 
-// ── Main App ──────────────────────────────────────────────────────────────
 function initApp() {
-  document.getElementById('loading').style.display  = 'none';
-  document.getElementById('mainapp').style.display  = '';
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('mainapp').style.display = '';
 
   var PRESETS = {
     apbd: { path: 'csv_apbd', type: 'apbd', usePeriode: true  },
@@ -38,19 +35,21 @@ function initApp() {
     usePeriode: true, periode: '3', tahun: '2025'
   };
 
-  // ── Wire buttons ────────────────────────────────────────────────────────
-  document.getElementById('btn-apbd').addEventListener('click',  function() { setMode('apbd'); });
-  document.getElementById('btn-tkdd').addEventListener('click',  function() { setMode('tkdd'); });
-  document.getElementById('pill-xls').addEventListener('click',  function() { setFmt('xls'); });
-  document.getElementById('pill-xlsx').addEventListener('click', function() { setFmt('xlsx'); });
-  document.getElementById('applyBtn').addEventListener('click',  applyParams);
-  document.getElementById('dlBtn').addEventListener('click',     startAll);
-  document.getElementById('retryBtn').addEventListener('click',  retryFailed);
-  document.getElementById('speriode').addEventListener('change', updatePreview);
-  document.getElementById('stahun').addEventListener('change',   updatePreview);
+  document.getElementById('btn-apbd').addEventListener('click',    function() { setMode('apbd'); });
+  document.getElementById('btn-tkdd').addEventListener('click',    function() { setMode('tkdd'); });
+  document.getElementById('pill-xls').addEventListener('click',   function() { setFmt('xls'); });
+  document.getElementById('pill-xlsx').addEventListener('click',  function() { setFmt('xlsx'); });
+  document.getElementById('applyBtn').addEventListener('click',   applyParams);
+  document.getElementById('dlBtn').addEventListener('click',      startAll);
+  document.getElementById('retryBtn').addEventListener('click',   retryFailed);
+  document.getElementById('speriode').addEventListener('change',  updatePreview);
+  document.getElementById('stahun').addEventListener('change',    updatePreview);
   document.getElementById('provFilter').addEventListener('change', buildTable);
+  document.getElementById('popupClose').addEventListener('click', closePopup);
+  document.getElementById('popupOverlay').addEventListener('click', function(e) {
+    if (e.target === document.getElementById('popupOverlay')) closePopup();
+  });
 
-  // ── Mode ────────────────────────────────────────────────────────────────
   function setMode(m) {
     mode = m;
     document.getElementById('btn-apbd').className = (m === 'apbd') ? 'on' : '';
@@ -64,14 +63,12 @@ function initApp() {
     document.getElementById('oknote').style.display = 'none';
   }
 
-  // ── Format ──────────────────────────────────────────────────────────────
   function setFmt(f) {
     fmt = f;
     document.getElementById('pill-xls').className  = 'pill' + (f === 'xls'  ? ' pxls'  : '');
     document.getElementById('pill-xlsx').className = 'pill' + (f === 'xlsx' ? ' pxlsx' : '');
   }
 
-  // ── URL Preview ─────────────────────────────────────────────────────────
   function updatePreview() {
     var pr = PRESETS[mode];
     document.getElementById('pvpath').textContent  = pr.path;
@@ -86,7 +83,6 @@ function initApp() {
     }
   }
 
-  // ── Apply ───────────────────────────────────────────────────────────────
   function applyParams() {
     var pr = PRESETS[mode];
     params = {
@@ -100,7 +96,6 @@ function initApp() {
     buildTable();
   }
 
-  // ── Build URL ───────────────────────────────────────────────────────────
   function buildUrl(prov, pemda) {
     var u = 'https://djpk.kemenkeu.go.id/portal/' + params.path + '?type=' + params.type;
     if (params.usePeriode) u += '&periode=' + params.periode;
@@ -108,7 +103,6 @@ function initApp() {
     return u;
   }
 
-  // ── Convert XLS -> XLSX in browser via SheetJS ──────────────────────────
   function convertToXlsx(arrayBuffer) {
     var data = new Uint8Array(arrayBuffer);
     var wb   = XLSX.read(data, { type: 'array' });
@@ -118,7 +112,7 @@ function initApp() {
     });
   }
 
-  // ── Province dropdown ───────────────────────────────────────────────────
+  // ── Province dropdown ────────────────────────────────────────────────────
   var provFilter = document.getElementById('provFilter');
   var seen = {};
   for (var ci = 0; ci < COMPACT.length; ci++) {
@@ -176,15 +170,21 @@ function initApp() {
         var row = filtered[idx];
         var tr  = document.createElement('tr');
 
+        // No. column
+        var tdNo = document.createElement('td');
+        tdNo.style.textAlign = 'center';
+        tdNo.style.color = 'var(--muted)';
+        tdNo.textContent = idx + 1;
+
         var td1 = document.createElement('td');
         td1.textContent = row[3];
 
         var td2 = document.createElement('td');
         td2.textContent = row[2] + ext;
 
-        var td3    = document.createElement('td');
-        var badge  = document.createElement('span');
-        badge.id   = 's' + idx;
+        var td3   = document.createElement('td');
+        var badge = document.createElement('span');
+        badge.id          = 's' + idx;
         badge.className   = 'badge bwait';
         badge.textContent = 'Menunggu';
         td3.appendChild(badge);
@@ -196,6 +196,7 @@ function initApp() {
         btn.addEventListener('click', function() { doOne(idx); });
         td4.appendChild(btn);
 
+        tr.appendChild(tdNo);
         tr.appendChild(td1);
         tr.appendChild(td2);
         tr.appendChild(td3);
@@ -207,7 +208,7 @@ function initApp() {
 
   buildTable();
 
-  // ── Download one file ────────────────────────────────────────────────────
+  // ── Download one ─────────────────────────────────────────────────────────
   function doDownload(i) {
     var row  = filtered[i];
     var prov = row[0], pemda = row[1], nama = row[2];
@@ -238,7 +239,7 @@ function initApp() {
         setStatus(i, 'bok', '\u2713 Selesai');
         return true;
       })
-      .catch(function(e) {
+      .catch(function() {
         setStatus(i, 'berr', '\u2717 Gagal');
         return false;
       });
@@ -253,6 +254,50 @@ function initApp() {
   function delay(ms) {
     return new Promise(function(resolve) { setTimeout(resolve, ms); });
   }
+
+  // ── Popup notification ───────────────────────────────────────────────────
+  function showPopup(ok, fail, total) {
+    var allOk  = fail === 0;
+    var icon   = allOk ? '\u2705' : (ok === 0 ? '\u274C' : '\u26A0\uFE0F');
+    var title  = allOk ? 'Download Selesai!' : (ok === 0 ? 'Download Gagal' : 'Download Selesai dengan Catatan');
+    var color  = allOk ? 'var(--ok)' : (ok === 0 ? 'var(--err)' : 'var(--warn)');
+    var colorbg= allOk ? 'var(--okbg)' : (ok === 0 ? 'var(--errbg)' : 'var(--wbg)');
+
+    document.getElementById('popupIcon').textContent    = icon;
+    document.getElementById('popupTitle').textContent   = title;
+    document.getElementById('popupTitle').style.color   = color;
+    document.getElementById('popupTotal').textContent   = total;
+    document.getElementById('popupOk').textContent      = ok;
+    document.getElementById('popupFail').textContent    = fail;
+    document.getElementById('popupOkBox').style.background   = 'var(--okbg)';
+    document.getElementById('popupOkBox').style.color        = 'var(--ok)';
+    document.getElementById('popupFailBox').style.background = fail > 0 ? 'var(--errbg)' : 'var(--bg)';
+    document.getElementById('popupFailBox').style.color      = fail > 0 ? 'var(--err)'   : 'var(--muted)';
+
+    if (fail > 0) {
+      document.getElementById('popupRetryWrap').style.display = 'block';
+    } else {
+      document.getElementById('popupRetryWrap').style.display = 'none';
+    }
+
+    document.getElementById('popupOverlay').style.display = 'flex';
+    setTimeout(function() {
+      document.getElementById('popupOverlay').style.opacity = '1';
+      document.getElementById('popupBox').style.transform  = 'translateY(0)';
+    }, 10);
+  }
+
+  function closePopup() {
+    var overlay = document.getElementById('popupOverlay');
+    overlay.style.opacity = '0';
+    document.getElementById('popupBox').style.transform = 'translateY(20px)';
+    setTimeout(function() { overlay.style.display = 'none'; }, 250);
+  }
+
+  document.getElementById('popupRetryBtn').addEventListener('click', function() {
+    closePopup();
+    setTimeout(retryFailed, 300);
+  });
 
   // ── Download all ─────────────────────────────────────────────────────────
   function startAll() {
@@ -276,6 +321,7 @@ function initApp() {
         btn.disabled = false;
         isRunning = false;
         updateStats();
+        showPopup(ok, fail, filtered.length);
         return;
       }
       var i = idx++;
@@ -314,6 +360,7 @@ function initApp() {
         retryBtn.disabled = false;
         isRunning = false;
         updateStats();
+        showPopup(ok, fail, failIdx.length);
         return;
       }
       var i = failIdx[k++];
