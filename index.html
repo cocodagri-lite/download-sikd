@@ -2,6 +2,9 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Download & Convert APBD/TKDD</title>
 <style>
@@ -24,37 +27,25 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 .sub{font-size:13px;color:var(--muted);margin-bottom:1.2rem}
 .card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.2rem 1.4rem;margin-bottom:1rem}
 .lbl{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.5px;margin-bottom:7px}
-
-/* Segment control */
 .seg{display:inline-flex;border:2px solid var(--accent);border-radius:8px;overflow:hidden;margin-bottom:14px}
 .seg button{padding:8px 30px;font-size:13px;font-weight:700;border:none;background:var(--surface);color:var(--accent);cursor:pointer;transition:all .15s}
 .seg button.on{background:var(--accent);color:#fff}
 .seg button:first-child{border-right:2px solid var(--accent)}
-
-/* URL preview */
 .urlbox{font-family:monospace;font-size:12px;background:var(--bg);border:0.5px solid var(--bh);border-radius:var(--rs);padding:9px 13px;word-break:break-all;line-height:2.1;margin-bottom:13px}
 .uv{color:var(--accent);font-weight:700;background:var(--abg);border-radius:3px;padding:0 5px}
 .ud{color:var(--muted)}
-
-/* Params */
 .prow{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
 .pcol{display:flex;flex-direction:column;gap:4px}
 .pcol label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)}
 .pcol select{padding:7px 10px;font-size:13px;border:0.5px solid var(--bh);border-radius:var(--rs);background:var(--surface);color:var(--text);cursor:pointer;min-width:100px}
 .pcol.off{opacity:.35;pointer-events:none}
-
-/* Format pills */
 .frow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .pill{padding:8px 18px;border:2px solid var(--bh);border-radius:99px;cursor:pointer;font-size:13px;background:var(--surface);color:var(--text);user-select:none;transition:all .15s}
 .pill.pxls{border-color:var(--warn);background:var(--wbg);color:var(--warn);font-weight:700}
 .pill.pxlsx{border-color:var(--ok);background:var(--okbg);color:var(--ok);font-weight:700}
-
-/* Apply button */
 .apply{padding:9px 24px;font-size:13px;font-weight:700;background:var(--text);color:var(--surface);border:none;border-radius:var(--rs);cursor:pointer;transition:opacity .15s}
 .apply:hover{opacity:.8}
 .oknote{display:none;font-size:12px;color:var(--ok);font-weight:700;margin-left:10px;vertical-align:middle}
-
-/* Controls */
 .ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .psel{padding:7px 10px;font-size:13px;border:0.5px solid var(--bh);border-radius:var(--rs);background:var(--surface);color:var(--text);cursor:pointer}
 .bmain{padding:9px 20px;font-size:13px;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;transition:opacity .15s}
@@ -64,14 +55,11 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 .bwarn:disabled{opacity:.4;cursor:not-allowed}
 #ptxt{font-size:13px;color:var(--muted)}
 #stxt{font-size:12px;color:var(--muted);margin-bottom:8px}
-
-/* Progress bar */
 .pgwrap{height:4px;background:var(--border);border-radius:99px;margin-bottom:10px;display:none}
 .pgbar{height:4px;background:var(--accent);border-radius:99px;width:0%;transition:width .3s}
-
-/* Table */
 table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:var(--r);overflow:hidden;border:0.5px solid var(--border);margin-top:4px}
 th{background:var(--abg);color:var(--accent);padding:8px 10px;font-size:11px;font-weight:700;text-transform:uppercase;text-align:left;letter-spacing:.3px}
+th.th-no{text-align:center;width:48px}
 td{padding:6px 10px;font-size:12px;border-top:0.5px solid var(--border);vertical-align:middle}
 .badge{display:inline-block;font-size:11px;padding:2px 10px;border-radius:99px;font-weight:500;white-space:nowrap}
 .bwait{background:var(--bg);color:var(--muted)}
@@ -81,26 +69,75 @@ td{padding:6px 10px;font-size:12px;border-top:0.5px solid var(--border);vertical
 .berr{background:var(--errbg);color:var(--err)}
 .bone{padding:3px 10px;font-size:11px;background:var(--surface);color:var(--accent);border:0.5px solid var(--accent);border-radius:99px;cursor:pointer;transition:background .1s}
 .bone:hover{background:var(--abg)}
-
-/* Info box */
 .infobox{background:var(--abg);border:0.5px solid var(--accent);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--accent);line-height:1.8;margin-bottom:1rem}
 
-/* Loading overlay */
+/* Loading */
 #loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:999}
 #loading p{font-size:14px;color:var(--muted)}
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* Popup overlay */
+#popupOverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:none;align-items:center;justify-content:center;
+  z-index:1000;opacity:0;transition:opacity .25s;padding:1rem;
+}
+#popupBox{
+  background:var(--surface);border-radius:var(--r);
+  width:100%;max-width:380px;padding:2rem 1.5rem;
+  text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2);
+  transform:translateY(20px);transition:transform .25s;
+}
+#popupIcon{font-size:48px;display:block;margin-bottom:12px;line-height:1}
+#popupTitle{font-size:17px;font-weight:700;margin-bottom:16px}
+.popup-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.popup-stat{border-radius:var(--rs);padding:10px 8px}
+.popup-stat .pval{font-size:26px;font-weight:700;line-height:1}
+.popup-stat .plbl{font-size:11px;margin-top:4px;font-weight:500}
+#popupRetryWrap{margin-bottom:12px}
+.popup-retry{width:100%;padding:9px;font-size:13px;font-weight:700;background:var(--errbg);color:var(--err);border:1px solid var(--err);border-radius:var(--rs);cursor:pointer;margin-bottom:8px}
+.popup-close{width:100%;padding:9px;font-size:13px;font-weight:600;background:var(--text);color:var(--surface);border:none;border-radius:var(--rs);cursor:pointer;transition:opacity .15s}
+.popup-close:hover{opacity:.8}
 
 footer{text-align:center;font-size:12px;color:var(--muted);margin-top:1.5rem;padding-bottom:1rem}
 </style>
 </head>
 <body>
 
+<!-- Loading screen -->
 <div id="loading">
   <div class="spinner"></div>
   <p>Memuat library SheetJS...</p>
 </div>
 
+<!-- Popup notification -->
+<div id="popupOverlay">
+  <div id="popupBox">
+    <span id="popupIcon">&#9989;</span>
+    <div id="popupTitle">Download Selesai!</div>
+    <div class="popup-stats">
+      <div class="popup-stat" style="background:var(--bg)">
+        <div class="pval" style="color:var(--text)" id="popupTotal">0</div>
+        <div class="plbl" style="color:var(--muted)">Total</div>
+      </div>
+      <div class="popup-stat" id="popupOkBox">
+        <div class="pval" id="popupOk">0</div>
+        <div class="plbl">Berhasil</div>
+      </div>
+      <div class="popup-stat" id="popupFailBox">
+        <div class="pval" id="popupFail">0</div>
+        <div class="plbl">Gagal</div>
+      </div>
+    </div>
+    <div id="popupRetryWrap" style="display:none">
+      <button class="popup-retry" id="popupRetryBtn">&#8635; Ulangi yang Gagal</button>
+    </div>
+    <button class="popup-close" id="popupClose">Tutup</button>
+  </div>
+</div>
+
+<!-- Main app -->
 <div class="wrap" id="mainapp" style="display:none">
 <h1>&#8659; Download &amp; Convert APBD / TKDD</h1>
 <p class="sub" id="subinfo">Memuat data...</p>
@@ -163,7 +200,7 @@ footer{text-align:center;font-size:12px;color:var(--muted);margin-top:1.5rem;pad
 </div>
 
 <div class="infobox">
-  &#128161; Konversi <b>XLS &#8594; XLSX</b> dilakukan langsung di browser menggunakan <b>SheetJS</b> &mdash; tidak perlu server, tidak perlu install apapun, bisa diakses dari mana saja.<br>
+  &#128161; Konversi <b>XLS &#8594; XLSX</b> dilakukan langsung di browser menggunakan <b>SheetJS</b> &mdash; tidak perlu server, tidak perlu install apapun.<br>
   &#128274; Hilangkan popup izin download di Chrome: buka <code>chrome://settings/content/automaticDownloads</code> &rarr; Izinkan &rarr; tambahkan URL website ini.
 </div>
 
@@ -178,6 +215,7 @@ footer{text-align:center;font-size:12px;color:var(--muted);margin-top:1.5rem;pad
 
 <table>
   <thead><tr>
+    <th class="th-no">No.</th>
     <th style="width:185px">Provinsi</th>
     <th>Nama File</th>
     <th style="width:125px">Status</th>
@@ -189,7 +227,7 @@ footer{text-align:center;font-size:12px;color:var(--muted);margin-top:1.5rem;pad
 <footer>Konversi XLS &#8594; XLSX via SheetJS &bull; Berjalan 100% di browser &bull; File tidak dikirim ke server</footer>
 </div>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="data.js?v=20260415"></script>
+<script src="app.js?v=20260415"></script>
 </body>
 </html>
