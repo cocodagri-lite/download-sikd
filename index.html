@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Download & Convert APBD/TKDD</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--border:rgba(0,0,0,.1);--bh:rgba(0,0,0,.22);
+  --text:#1a1a18;--muted:#6b6b67;--accent:#1d6eaa;--abg:#e6f1fb;
+  --ok:#3b6d11;--okbg:#eaf3de;--err:#a32d2d;--errbg:#fcebeb;
+  --warn:#854f0b;--wbg:#faeeda;--r:12px;--rs:8px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--surface:#282825;--border:rgba(255,255,255,.1);--bh:rgba(255,255,255,.25);
+  --text:#e8e6df;--muted:#9b9993;--accent:#85b7eb;--abg:#0c447c;
+  --ok:#c0dd97;--okbg:#27500a;--err:#f09595;--errbg:#791f1f;
+  --warn:#fac775;--wbg:#633806;
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);padding:1.5rem 1rem;min-height:100vh}
+.wrap{max-width:980px;margin:0 auto}
+h1{font-size:20px;font-weight:500;margin-bottom:4px}
+.sub{font-size:13px;color:var(--muted);margin-bottom:1.2rem}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.2rem 1.4rem;margin-bottom:1rem}
+.lbl{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.5px;margin-bottom:7px}
+
+/* Segment control */
+.seg{display:inline-flex;border:2px solid var(--accent);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.seg button{padding:8px 30px;font-size:13px;font-weight:700;border:none;background:var(--surface);color:var(--accent);cursor:pointer;transition:all .15s}
+.seg button.on{background:var(--accent);color:#fff}
+.seg button:first-child{border-right:2px solid var(--accent)}
+
+/* URL preview */
+.urlbox{font-family:monospace;font-size:12px;background:var(--bg);border:0.5px solid var(--bh);border-radius:var(--rs);padding:9px 13px;word-break:break-all;line-height:2.1;margin-bottom:13px}
+.uv{color:var(--accent);font-weight:700;background:var(--abg);border-radius:3px;padding:0 5px}
+.ud{color:var(--muted)}
+
+/* Params */
+.prow{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.pcol{display:flex;flex-direction:column;gap:4px}
+.pcol label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)}
+.pcol select{padding:7px 10px;font-size:13px;border:0.5px solid var(--bh);border-radius:var(--rs);background:var(--surface);color:var(--text);cursor:pointer;min-width:100px}
+.pcol.off{opacity:.35;pointer-events:none}
+
+/* Format pills */
+.frow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.pill{padding:8px 18px;border:2px solid var(--bh);border-radius:99px;cursor:pointer;font-size:13px;background:var(--surface);color:var(--text);user-select:none;transition:all .15s}
+.pill.pxls{border-color:var(--warn);background:var(--wbg);color:var(--warn);font-weight:700}
+.pill.pxlsx{border-color:var(--ok);background:var(--okbg);color:var(--ok);font-weight:700}
+
+/* Apply button */
+.apply{padding:9px 24px;font-size:13px;font-weight:700;background:var(--text);color:var(--surface);border:none;border-radius:var(--rs);cursor:pointer;transition:opacity .15s}
+.apply:hover{opacity:.8}
+.oknote{display:none;font-size:12px;color:var(--ok);font-weight:700;margin-left:10px;vertical-align:middle}
+
+/* Controls */
+.ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.psel{padding:7px 10px;font-size:13px;border:0.5px solid var(--bh);border-radius:var(--rs);background:var(--surface);color:var(--text);cursor:pointer}
+.bmain{padding:9px 20px;font-size:13px;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;transition:opacity .15s}
+.bmain:hover{opacity:.85}
+.bmain:disabled{opacity:.4;cursor:not-allowed}
+.bwarn{padding:7px 14px;font-size:12px;font-weight:700;background:var(--errbg);color:var(--err);border:1px solid var(--err);border-radius:var(--rs);cursor:pointer}
+.bwarn:disabled{opacity:.4;cursor:not-allowed}
+#ptxt{font-size:13px;color:var(--muted)}
+#stxt{font-size:12px;color:var(--muted);margin-bottom:8px}
+
+/* Progress bar */
+.pgwrap{height:4px;background:var(--border);border-radius:99px;margin-bottom:10px;display:none}
+.pgbar{height:4px;background:var(--accent);border-radius:99px;width:0%;transition:width .3s}
+
+/* Table */
+table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:var(--r);overflow:hidden;border:0.5px solid var(--border);margin-top:4px}
+th{background:var(--abg);color:var(--accent);padding:8px 10px;font-size:11px;font-weight:700;text-transform:uppercase;text-align:left;letter-spacing:.3px}
+td{padding:6px 10px;font-size:12px;border-top:0.5px solid var(--border);vertical-align:middle}
+.badge{display:inline-block;font-size:11px;padding:2px 10px;border-radius:99px;font-weight:500;white-space:nowrap}
+.bwait{background:var(--bg);color:var(--muted)}
+.bdl{background:var(--abg);color:var(--accent)}
+.bconv{background:var(--wbg);color:var(--warn)}
+.bok{background:var(--okbg);color:var(--ok)}
+.berr{background:var(--errbg);color:var(--err)}
+.bone{padding:3px 10px;font-size:11px;background:var(--surface);color:var(--accent);border:0.5px solid var(--accent);border-radius:99px;cursor:pointer;transition:background .1s}
+.bone:hover{background:var(--abg)}
+
+/* Info box */
+.infobox{background:var(--abg);border:0.5px solid var(--accent);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--accent);line-height:1.8;margin-bottom:1rem}
+
+/* Loading overlay */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:999}
+#loading p{font-size:14px;color:var(--muted)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+footer{text-align:center;font-size:12px;color:var(--muted);margin-top:1.5rem;padding-bottom:1rem}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Memuat library SheetJS...</p>
+</div>
+
+<div class="wrap" id="mainapp" style="display:none">
+<h1>&#8659; Download &amp; Convert APBD / TKDD</h1>
+<p class="sub" id="subinfo">Memuat data...</p>
+
+<div class="card">
+  <div class="lbl">Jenis Data</div>
+  <div class="seg">
+    <button id="btn-apbd" class="on">APBD</button>
+    <button id="btn-tkdd">TKDD</button>
+  </div>
+
+  <div class="urlbox">
+    https://djpk.kemenkeu.go.id/portal/<span class="uv" id="pvpath">csv_apbd</span>?type=<span class="uv" id="pvtype">apbd</span><span id="pvpwrap">&amp;periode=<span class="uv" id="pvperiode">3</span></span>&amp;tahun=<span class="uv" id="pvtahun">2025</span><span class="ud">&amp;provinsi={kode}&amp;pemda={kode}</span>
+  </div>
+
+  <div class="prow">
+    <div class="pcol" id="colperiode">
+      <label>Periode <span style="font-size:10px;font-weight:400">(otomatis sesuai mode)</span></label>
+      <select id="speriode" style="min-width:215px">
+        <option value="1">1 - Januari</option>
+        <option value="2">2 - Februari</option>
+        <option value="3" selected>3 - Maret (Triwulan I)</option>
+        <option value="4">4 - April</option>
+        <option value="5">5 - Mei</option>
+        <option value="6">6 - Juni (Semester I)</option>
+        <option value="7">7 - Juli</option>
+        <option value="8">8 - Agustus</option>
+        <option value="9">9 - September (Triwulan III)</option>
+        <option value="10">10 - Oktober</option>
+        <option value="11">11 - November</option>
+        <option value="12">12 - Desember (Tahunan)</option>
+      </select>
+    </div>
+    <div class="pcol">
+      <label>Tahun</label>
+      <select id="stahun">
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024">2024</option>
+        <option value="2025" selected>2025</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+        <option value="2029">2029</option>
+        <option value="2030">2030</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="lbl">Format File</div>
+  <div class="frow">
+    <div class="pill" id="pill-xls">&#128196; XLS &mdash; original (tanpa konversi)</div>
+    <div class="pill pxlsx" id="pill-xlsx">&#9989; XLSX &mdash; konversi otomatis di browser</div>
+  </div>
+
+  <button class="apply" id="applyBtn">&#10003; Terapkan</button>
+  <span class="oknote" id="oknote">&#10003; Diterapkan!</span>
+</div>
+
+<div class="infobox">
+  &#128161; Konversi <b>XLS &#8594; XLSX</b> dilakukan langsung di browser menggunakan <b>SheetJS</b> &mdash; tidak perlu server, tidak perlu install apapun, bisa diakses dari mana saja.<br>
+  &#128274; Hilangkan popup izin download di Chrome: buka <code>chrome://settings/content/automaticDownloads</code> &rarr; Izinkan &rarr; tambahkan URL website ini.
+</div>
+
+<div class="ctrl">
+  <select class="psel" id="provFilter"><option value="">Semua Provinsi</option></select>
+  <button class="bmain" id="dlBtn">&#8595; Download Semua</button>
+  <button class="bwarn" id="retryBtn" style="display:none">&#8635; Ulangi Gagal (<span id="failCount">0</span>)</button>
+  <span id="ptxt"></span>
+</div>
+<div id="stxt"></div>
+<div class="pgwrap" id="pgwrap"><div class="pgbar" id="pgbar"></div></div>
+
+<table>
+  <thead><tr>
+    <th style="width:185px">Provinsi</th>
+    <th>Nama File</th>
+    <th style="width:125px">Status</th>
+    <th style="width:75px">Aksi</th>
+  </tr></thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<footer>Konversi XLS &#8594; XLSX via SheetJS &bull; Berjalan 100% di browser &bull; File tidak dikirim ke server</footer>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
